@@ -1,34 +1,35 @@
 class Solution {
 public:
     vector<vector<int>> findWinners(vector<vector<int>>& matches) {
-        unordered_map<int,int>mpp;
+        unordered_set<int> zeroLoss, oneLoss , moreLoss;
 
-        for(int i=0;i<matches.size();i++){
-            int loser = matches[i][1];
+        for(auto& match : matches) {
+            int winner = match[0], loser = match[1];
 
-            mpp[loser]++;
-        }
-
-        vector<int>notLost;
-        vector<int>lostOnce;
-
-        for(int i=0;i<matches.size();i++){
-            int winner = matches[i][0];
-            int loser = matches[i][1];
-
-            if(mpp.find(winner) == mpp.end()){
-                notLost.push_back(winner);
-                mpp[winner] = 2;
-            }
-
-            if(mpp[loser] == 1){
-                lostOnce.push_back(loser);
+            if((oneLoss.find(winner) == oneLoss.end()) && 
+             (moreLoss.find(winner) == moreLoss.end())) {
+                zeroLoss.insert(winner);
+             }
+            // add looser
+              if (zeroLoss.find(loser) != zeroLoss.end()) {
+                zeroLoss.erase(loser);
+                oneLoss.insert(loser);
+            } else if (oneLoss.find(loser) != oneLoss.end()) {
+                oneLoss.erase(loser);
+                moreLoss.insert(loser);
+            } else if (moreLoss.find(loser) != moreLoss.end()) {
+                continue;
+            } else {
+                oneLoss.insert(loser);
             }
         }
+        vector<vector<int>> answer(2, vector<int>());
+        answer[0].assign(zeroLoss.begin(), zeroLoss.end());
+        answer[1].assign(oneLoss.begin(), oneLoss.end());
+        
+        sort(answer[0].begin(), answer[0].end());
+        sort(answer[1].begin(), answer[1].end());
 
-        sort(lostOnce.begin(),lostOnce.end());
-        sort(notLost.begin(),notLost.end());
-        return {notLost, lostOnce};
-
+        return answer;
     }
 };
